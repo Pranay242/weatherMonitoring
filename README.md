@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS weather_metadata (
     windspeed DECIMAL(10, 2) NOT NULL,
     date_time TIMESTAMP NOT NULL
 );
+# Please add index on date_time and city, as table grows in size
 ```
 ### 2. Alert Thresholds Table
 
@@ -130,6 +131,12 @@ GROUP BY
 - Daily weather summaries
 - Existing alerts
 - UI to add new alerts (Duplicates can not be allowed)
+
+## Tech Stack
+- Springboot
+- MySQL (Views are used to aggregate)
+- HTML
+- NodeJs (Used for UI functions)
 
 ## Test Cases
 1. **System Setup**: Verify the system starts successfully and connects to the OpenWeatherMap API using a valid API key.
