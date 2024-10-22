@@ -1,0 +1,50 @@
+[
+  {
+    "cityName" : "Pune",
+    "longitude" : 73.8544541,
+    "latitude" : 18.521428,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Mumbai",
+    "longitude" : 72.878176,
+    "latitude" : 19.0785451,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Bangalore",
+    "longitude" : 77.590082,
+    "latitude" : 12.9767936,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Hyderabad",
+    "longitude" : 78.4740613,
+    "latitude" : 17.360589,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Delhi",
+    "longitude" : 77.2219388,
+    "latitude" : 28.6517178,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Kolkata",
+    "longitude" : 88.3638815,
+    "latitude" : 22.5726723,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Chennai",
+    "longitude" : 80.270186,
+    "latitude" : 13.0836939,
+    "country" : "India"
+  },
+  {
+    "cityName" : "Ahmedabad",
+    "longitude" : 72.5797068,
+    "latitude" : 23.0216238,
+    "country" : "India"
+  }
+]
