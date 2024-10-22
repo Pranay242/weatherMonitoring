@@ -2,19 +2,23 @@
 
 ## Table of Contents
 - [Objective](#objective)
+- [Demo link](#demo)
 - [Data Source](#data-source)
 - [Database Schema](#database-schema)
 - [Processing and Analysis](#processing-and-analysis)
 - [Rollups and Aggregates](#rollups-and-aggregates)
 - [Alerting Thresholds](#alerting-thresholds)
 - [Visualizations](#visualizations)
+- [Tech Stack](#tech-stack)
 - [Test Cases](#test-cases)
 - [Bonus Features](#bonus-features)
 - [Installation and Setup](#installation-and-setup)
-- [Demo link](#demo)
 
 ## Objective
 Develop a real-time data processing system to monitor weather conditions and provide summarized insights using rollups and aggregates. The system will utilize data from the [OpenWeatherMap API](https://openweathermap.org/). The system will provide UI to set alerts if said parameter threshold is met and alerts will be logged on the console.
+
+## Demo
+[Watch the video ](https://drive.google.com/file/d/1Wg2RuU-6zFzzYjr-a57wEbsLle1qkq_W/view?usp=sharing)
 
 ## Data Source
 The system will continuously retrieve weather data from the OpenWeatherMap API at the 5 minutes interval (configurable from application.properties). The system will extract following details from the API response:
@@ -169,5 +173,3 @@ GROUP BY
    ## Please change the key of your account open.weather.map.api.key in application.properties (Keeping my key for testing purpose)
    ```
    
-## Demo
-[Watch the video ](https://drive.google.com/file/d/1Wg2RuU-6zFzzYjr-a57wEbsLle1qkq_W/view?usp=sharing)
