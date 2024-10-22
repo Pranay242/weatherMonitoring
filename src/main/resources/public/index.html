@@ -52,6 +52,7 @@
 
         th {
             background-color: #f4f4f4;
+            font-size:12px;
         }
 
         tbody {
@@ -291,15 +292,21 @@
                                     <th>Day</th>
                                     {selectedUnit === 'kelvin' ? (
                                         <React.Fragment>
-                                            <th>Average Temperature (Kelvin)</th>
-                                            <th>Maximum Temperature (Kelvin)</th>
-                                            <th>Minimum Temperature (Kelvin)</th>
+                                            <th>Avg Temp (K)</th>
+                                            <th>Avg Feels Like Temp (K)</th>
+                                            <th>Max Feels Like Temp (K)</th>
+                                            <th>Min Feels Like Temp (K)</th>
+                                            <th>Max Temp (K)</th>
+                                            <th>Min Temp (K)</th>
                                         </React.Fragment>
                                     ) : (
                                         <React.Fragment>
-                                            <th>Average Temperature (°C)</th>
-                                            <th>Maximum Temperature (°C)</th>
-                                            <th>Minimum Temperature (°C)</th>
+                                            <th>Avg Temp (°C)</th>
+                                            <th>Avg Feels Like Temp (°C)</th>
+                                            <th>Max Feels Like Temp (°C)</th>
+                                            <th>Min Feels Like Temp (°C)</th>
+                                            <th>Max Temp (°C)</th>
+                                            <th>Min Temp (°C)</th>
                                         </React.Fragment>
                                     )}
                                     <th>Average Humidity (%)</th>
@@ -319,6 +326,9 @@
                                         <td>{selectedUnit === 'kelvin' ? record.averageTemperatureKelvin : record.averageTemperatureCelsius}</td>
                                         <td>{selectedUnit === 'kelvin' ? record.maximumTemperatureKelvin : record.maximumTemperatureCelsius}</td>
                                         <td>{selectedUnit === 'kelvin' ? record.minimumTemperatureKelvin : record.minimumTemperatureCelsius}</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.averageFeelsLikeTemperatureKelvin : record.averageFeelsLikeTemperatureCelsius}</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.maximumFeelsLikeTemperatureKelvin : record.maximumFeelsLikeTemperatureCelsius }</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.minimumFeelsLikeTemperatureKelvin : record.minimumFeelsLikeTemperatureCelsius}</td>
                                         <td>{record.averageHumidity.toFixed(2)}</td>
                                         <td>{record.maximumHumidity.toFixed(2)}</td>
                                         <td>{record.minimumHumidity.toFixed(2)}</td>
@@ -352,6 +362,7 @@
                             <option value="temp">Temperature</option>
                             <option value="humidity">Humidity</option>
                             <option value="windspeed">Windspeed</option>
+                            <option value="feels_like_temperature">Feels Like Temperature</option>
                         </select>
 
                         <label>Aggregation:</label>

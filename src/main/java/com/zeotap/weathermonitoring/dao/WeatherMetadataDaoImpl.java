@@ -105,6 +105,14 @@ public class WeatherMetadataDaoImpl implements WeatherMetadataDao {
             dto.setAverageTemperatureCelsius(rs.getDouble("average_temperature_celsius"));
             dto.setMaximumTemperatureCelsius(rs.getDouble("maximum_temperature_celsius"));
             dto.setMinimumTemperatureCelsius(rs.getDouble("minimum_temperature_celsius"));
+
+            dto.setAverageFeelsLikeTemperatureKelvin(rs.getDouble("average_feels_like_temperature_kelvin"));
+            dto.setMaximumFeelsLikeTemperatureKelvin(rs.getDouble("maximum_feels_like_temperature_kelvin"));
+            dto.setMinimumFeelsLikeTemperatureKelvin(rs.getDouble("minimum_feels_like_temperature_kelvin"));
+            dto.setAverageFeelsLikeTemperatureCelsius(rs.getDouble("average_feels_like_temperature_celsius"));
+            dto.setMaximumFeelsLikeTemperatureCelsius(rs.getDouble("maximum_feels_like_temperature_celsius"));
+            dto.setMinimumFeelsLikeTemperatureCelsius(rs.getDouble("minimum_feels_like_temperature_celsius"));
+
             dto.setAverageHumidity(rs.getDouble("average_humidity"));
             dto.setMaximumHumidity(rs.getDouble("maximum_humidity"));
             dto.setMinimumHumidity(rs.getDouble("minimum_humidity"));

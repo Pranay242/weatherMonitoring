@@ -10,7 +10,7 @@ public class ThresholdUtils {
 
     public static String generateCityWiseQuery(AlertThreshold threshold) {
         // if unit type is celcius then +273
-        if("celsius".equals(threshold.getUnitOfTemp())) {
+        if("celsius".equals(threshold.getUnitOfTemp()) && ("temp".equals(threshold.getField()) || "feels_like_temperature".equals(threshold.getField()))) {
             threshold.setValue(threshold.getValue() + 273.15);
         }
         String operator = getOperator(threshold.getOperator());
@@ -63,6 +63,8 @@ public class ThresholdUtils {
                 return "humidity";
             case "windspeed":
                 return "windSpeed";
+            case "feels_like_temperature":
+                return "feels_like_temperature";
             default:
                 return "";
         }
