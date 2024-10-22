@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeoTap Weather Monitoring</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            transition: background-color 0.5s;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        select, input[type="date"], input[type="text"], input[type="number"] {
+            width: 200px;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        tbody {
+            display: block;
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .responsive-image {
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        .threshold-form {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    function WeatherAggregates() {
+        const [selectedDate, setSelectedDate] = React.useState(new Date());
+        const [selectedUnit, setSelectedUnit] = React.useState('kelvin');
+        const [selectedCity, setSelectedCity] = React.useState('');
+        const [weatherData, setWeatherData] = React.useState(null);
+        const [cities, setCities] = React.useState([]);
+        const [loading, setLoading] = React.useState(false);
+        const [error, setError] = React.useState(null);
+        const [weatherCondition, setWeatherCondition] = React.useState('');
+        const [thresholds, setThresholds] = React.useState([]);
+        const [thresholdForm, setThresholdForm] = React.useState({
+            name: '',
+            field: '',
+            agg: '',
+            operator: '',
+            unitOfTemp: '',
+            value: ''
+        });
+        const [formError, setFormError] = React.useState('');
+
+        React.useEffect(() => {
+            const fetchCities = async () => {
+                try {
+                    const response = await fetch('/api/cities');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch cities');
+                    }
+                    const data = await response.json();
+                    setCities(data);
+                } catch (error) {
+                    console.error('Error fetching cities:', error);
+                }
+            };
+            fetchCities();
+        }, []);
+
+        React.useEffect(() => {
+            const fetchData = async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                    const formattedDate = selectedDate.toISOString().slice(0, 10);
+                    const response = await fetch(`/api/weather-aggregates?date=${formattedDate}&unit=${selectedUnit}&city=${selectedCity}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch weather aggregates');
+                    }
+                    const data = await response.json();
+                    setWeatherData(data);
+                    if (data.length > 0) {
+                        setWeatherCondition(data[0].dominantWeatherCondition);
+                    }
+                } catch (error) {
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (selectedCity) {
+                fetchData();
+            }
+        }, [selectedDate, selectedUnit, selectedCity]);
+
+        React.useEffect(() => {
+            const fetchThresholds = async () => {
+                try {
+                    const response = await fetch('/api/thresholds');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch thresholds');
+                    }
+                    const data = await response.json();
+                    setThresholds(data);
+                } catch (error) {
+                    console.error('Error fetching thresholds:', error);
+                }
+            };
+            fetchThresholds();
+        }, []);
+
+        const handleDateChange = (e) => {
+            setSelectedDate(new Date(e.target.value));
+        };
+
+        const isToday = selectedDate.toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10);
+
+        const getBackgroundColor = () => {
+            switch (weatherCondition.toLowerCase()) {
+                case 'clear':
+                    return '#87CEFA'; // Sky Blue
+                case 'clouds':
+                    return '#D3D3D3'; // Light Gray
+                case 'rain':
+                    return '#A9A9A9'; // Dark Gray
+                case 'snow':
+                    return '#FFFFFF'; // White
+                default:
+                    return '#F0F8FF'; // Alice Blue
+            }
+        };
+
+        const handleThresholdChange = (e) => {
+            const { name, value } = e.target;
+            setThresholdForm({ ...thresholdForm, [name]: value });
+        };
+
+        const handleThresholdSubmit = async (e) => {
+            e.preventDefault();
+            const { name, field, agg, operator, unitOfTemp, value } = thresholdForm;
+
+            // Validate duplicate entries
+            const isDuplicate = thresholds.some(threshold =>
+                threshold.name === name &&
+                threshold.field === field &&
+                threshold.agg === agg &&
+                threshold.operator === operator &&
+                threshold.unitOfTemp === unitOfTemp &&
+                threshold.value === value
+            );
+
+            if (isDuplicate) {
+                setFormError('This threshold already exists.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/thresholds', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(thresholdForm)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create threshold');
+                }
+
+                const newThreshold = await response.json();
+                setThresholds([...thresholds, newThreshold]);
+                setThresholdForm({ name: '', field: '', agg: '', operator: '', unitOfTemp: '', value: '' });
+                setFormError('');
+            } catch (error) {
+                setFormError(error.message);
+            }
+        };
+
+        return (
+            <div style={{ backgroundColor: getBackgroundColor(), padding: '20px', borderRadius: '5px' }}>
+                <h1>ZeoTap Weather Monitoring</h1>
+                <label htmlFor="city-select">Select City:</label>
+                <select id="city-select" value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)}>
+                    <option value="">Select City</option>
+                    {cities.map((city) => (
+                        <option key={city} value={city}>{city}</option>
+                    ))}
+                </select>
+
+                <label>Select Date:</label>
+                <input
+                    type="date"
+                    value={selectedDate.toISOString().slice(0, 10)}
+                    onChange={handleDateChange}
+                />
+
+                <label>Select Temperature Unit:</label>
+                <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)}>
+                    <option value="kelvin">Kelvin</option>
+                    <option value="celsius">Celsius</option>
+                </select>
+
+                {selectedCity && isToday && weatherData && (
+                    <h2>Weather Today in {selectedCity}</h2>
+                )}
+
+                {loading && <p>Loading...</p>}
+                {error && <p>Error: {error}</p>}
+
+                {weatherData && weatherData.length === 0 ? (
+                    <div>
+                        <img
+                            src="/not_found.jpg"
+                            alt="No Data Available"
+                            className="responsive-image"
+                        />
+                        <p>No data available for the selected city and date.</p>
+                    </div>
+                ) : (
+                    weatherData && (
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>City</th>
+                                    <th>Day</th>
+                                    {selectedUnit === 'kelvin' ? (
+                                        <React.Fragment>
+                                            <th>Average Temperature (Kelvin)</th>
+                                            <th>Maximum Temperature (Kelvin)</th>
+                                            <th>Minimum Temperature (Kelvin)</th>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                            <th>Average Temperature (°C)</th>
+                                            <th>Maximum Temperature (°C)</th>
+                                            <th>Minimum Temperature (°C)</th>
+                                        </React.Fragment>
+                                    )}
+                                    <th>Average Humidity (%)</th>
+                                    <th>Maximum Humidity (%)</th>
+                                    <th>Minimum Humidity (%)</th>
+                                    <th>Average Windspeed (m/s)</th>
+                                    <th>Maximum Windspeed (m/s)</th>
+                                    <th>Minimum Windspeed (m/s)</th>
+                                    <th>Dominant Weather Condition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {weatherData.map((record, index) => (
+                                    <tr key={index}>
+                                        <td>{record.city}</td>
+                                        <td>{record.day}</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.averageTemperatureKelvin : record.averageTemperatureCelsius}</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.maximumTemperatureKelvin : record.maximumTemperatureCelsius}</td>
+                                        <td>{selectedUnit === 'kelvin' ? record.minimumTemperatureKelvin : record.minimumTemperatureCelsius}</td>
+                                        <td>{record.averageHumidity.toFixed(2)}</td>
+                                        <td>{record.maximumHumidity.toFixed(2)}</td>
+                                        <td>{record.minimumHumidity.toFixed(2)}</td>
+                                        <td>{record.averageWindspeed.toFixed(2)}</td>
+                                        <td>{record.maximumWindspeed.toFixed(2)}</td>
+                                        <td>{record.minimumWindspeed.toFixed(2)}</td>
+                                        <td>{record.dominantWeatherCondition}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )
+                )}
+
+                <div className="threshold-form">
+                    <h2>Create Alert Threshold</h2>
+                    <form onSubmit={handleThresholdSubmit}>
+                        <label>Alert Name:</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={thresholdForm.name}
+                            onChange={handleThresholdChange}
+                            required
+                            placeholder="Enter alert name"
+                        />
+
+                        <label>Field:</label>
+                        <select name="field" value={thresholdForm.field} onChange={handleThresholdChange} required>
+                            <option value="">Select Field</option>
+                            <option value="temp">Temperature</option>
+                            <option value="humidity">Humidity</option>
+                            <option value="windspeed">Windspeed</option>
+                        </select>
+
+                        <label>Aggregation:</label>
+                        <select name="agg" value={thresholdForm.agg} onChange={handleThresholdChange} required>
+                            <option value="">Select Aggregation</option>
+                            <option value="avg">Average</option>
+                            <option value="max">Maximum</option>
+                            <option value="min">Minimum</option>
+                            <option value="last 2 records">Last 2 Records</option>
+                        </select>
+
+                        <label>Operator:</label>
+                        <select name="operator" value={thresholdForm.operator} onChange={handleThresholdChange} required>
+                            <option value="">Select Operator</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value=">=">≥</option>
+                            <option value="<=">≤</option>
+                            <option value="=">=</option>
+                        </select>
+
+                        <label>Unit of Temperature (if applicable):</label>
+                        <select name="unitOfTemp" value={thresholdForm.unitOfTemp} onChange={handleThresholdChange}>
+                            <option value="">Select Unit</option>
+                            <option value="kelvin">Kelvin</option>
+                            <option value="celsius">Celsius</option>
+                        </select>
+
+                        <label>Comparison Value:</label>
+                        <input
+                            type="number"
+                            name="value"
+                            value={thresholdForm.value}
+                            onChange={handleThresholdChange}
+                            step="0.01"
+                            min="0"
+                            required
+                        />
+
+                        <button type="submit">Add Threshold</button>
+                        {formError && <p className="error">{formError}</p>}
+                    </form>
+
+                    <h3>Current Thresholds</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Field</th>
+                                <th>Aggregation</th>
+                                <th>Operator</th>
+                                <th>Unit of Temperature</th>
+                                <th>Comparison Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {thresholds.map((threshold, index) => (
+                                <tr key={index}>
+                                    <td>{threshold.name}</td>
+                                    <td>{threshold.field}</td>
+                                    <td>{threshold.agg}</td>
+                                    <td>{threshold.operator}</td>
+                                    <td>{threshold.unitOfTemp}</td>
+                                    <td>{parseFloat(threshold.value).toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+
+    ReactDOM.render(<WeatherAggregates />, document.getElementById('root'));
+</script>
+</body>
+</html>
