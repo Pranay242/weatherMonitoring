@@ -159,6 +159,7 @@ GROUP BY
    ## Start the server from this class com.zeotap.weathermonitoring.application.WeatherMonitoringApplication
    ## You can access the URL with your host ip (localhost:8080/ if running locally) on port 8080.
    
+   ## Please change the key of your account open.weather.map.api.key in application.properties (Keeping my key for testing purpose)
    ```
    
 ## Demo
