@@ -157,7 +157,7 @@ GROUP BY
 1. Clone the repository:
    ```bash
    git clone https://github.com/Pranay242/weatherMonitoring
-   cd your-repo
+   cd weatherMonitoring
    ## install npm if not available
    npm init -y
    npm install react react-dom babel-loader @babel/core @babel/preset-react
